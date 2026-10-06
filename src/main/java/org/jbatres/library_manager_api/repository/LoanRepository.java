@@ -31,9 +31,9 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
      */
     @Modifying(flushAutomatically = true)
     @Query("""
-            update Loan l set l.status = com.university.library.entity.LoanStatus.ATRASADO
+            update Loan l set l.status = org.jbatres.library_manager_api.entity.LoanStatus.ATRASADO
             where l.user.id = :userId
-              and l.status = com.university.library.entity.LoanStatus.ACTIVO
+              and l.status = org.jbatres.library_manager_api.entity.LoanStatus.ACTIVO
               and l.expectedReturnDate < :today
             """)
     int markOverdueByUserId(@Param("userId") Long userId, @Param("today") LocalDate today);
@@ -45,11 +45,11 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             update Loan l
-            set l.status = com.university.library.entity.LoanStatus.DEVUELTO,
+            set l.status = org.jbatres.library_manager_api.entity.LoanStatus.DEVUELTO,
                 l.actualReturnDate = :today
             where l.id = :id
-              and l.status in (com.university.library.entity.LoanStatus.ACTIVO,
-                               com.university.library.entity.LoanStatus.ATRASADO)
+              and l.status in (org.jbatres.library_manager_api.entity.LoanStatus.ACTIVO,
+                               org.jbatres.library_manager_api.entity.LoanStatus.ATRASADO)
             """)
     int markReturned(@Param("id") Long id, @Param("today") LocalDate today);
 
