@@ -54,4 +54,39 @@ public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificat
             where b.id = :id and b.availableStock < b.totalStock
             """)
     int incrementAvailableStock(@Param("id") Long id);
+
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            UPDATE Book b
+               SET b.isbn = :isbn,
+                   b.title = :title,
+                   b.author = :author,
+                   b.category = :category,
+                   b.availableStock = b.availableStock + (:totalStock - b.totalStock),
+                   b.totalStock = :totalStock
+             WHERE b.id = :id
+               AND b.deleted = false
+               AND b.availableStock + (:totalStock - b.totalStock) >= 0
+            """)
+    int updateBook(@Param("id") Long id,
+                   @Param("isbn") String isbn,
+                   @Param("title") String title,
+                   @Param("author") String author,
+                   @Param("category") String category,
+                   @Param("totalStock") int totalStock);
+
+    /**
+     * Atomic soft delete. availableStock = totalStock means no copy is on loan.
+     * Returns 0 if the book does not exist, is already deleted, or has copies on loan.
+     */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            UPDATE Book b
+               SET b.deleted = true
+             WHERE b.id = :id
+               AND b.deleted = false
+               AND b.availableStock = b.totalStock
+            """)
+    int softDeleteIfNoCopiesOnLoan(@Param("id") Long id);
 }
