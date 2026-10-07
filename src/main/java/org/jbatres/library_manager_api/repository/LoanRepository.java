@@ -62,10 +62,11 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
             """)
     Optional<Loan> findByIdWithDetails(@Param("id") Long id);
 
-    /** Reader history. Only to-one associations are fetched, so pagination happens in SQL. */
+    /** Reader history with book and user loaded (LoanMapper needs both). Only to-one associations are fetched, so pagination happens in SQL. */
     @Query(value = """
             select l from Loan l
             join fetch l.book
+            join fetch l.user
             where l.user.id = :userId
             """,
             countQuery = "select count(l) from Loan l where l.user.id = :userId")
